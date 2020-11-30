@@ -531,6 +531,126 @@ sales_by_year_state_tbl %&gt;%
     fill = &quot;Main category&quot; # Changes the legend name
   )  </code></pre>
 <p><img src="journal_files/figure-html/unnamed-chunk-1-2.png" width="672" /></p>
+<p>#Data Acquisistion</p>
+<p>##challenge part 1 - spotifyr web api</p>
+<pre class="r"><code>library(spotifyr)
+
+
+library(tidyverse)
+library(knitr)
+
+
+rock_artists&lt;-get_genre_artists(
+  genre = &quot;rock&quot;,
+  
+  authorization = get_spotify_access_token()
+)</code></pre>
+<pre><code>## $q
+## [1] &quot;genre:\&quot;rock\&quot;&quot;
+## 
+## $type
+## [1] &quot;artist&quot;
+## 
+## $market
+## NULL
+## 
+## $limit
+## [1] 20
+## 
+## $offset
+## [1] 0
+## 
+## $access_token
+## [1] &quot;BQBlPrgxYAYCXTfzyXZjFAR-rthfq3w1FErHNeKNO7recwe-bIuJzYj5ABJWxidKUssr0ciXm3oPbl8mp7k&quot;</code></pre>
+<pre class="r"><code>rock_artists </code></pre>
+<pre><code>## # A tibble: 20 x 12
+##    genres href  id    images name  popularity type  uri   external_urls.s~
+##    &lt;list&gt; &lt;chr&gt; &lt;chr&gt; &lt;list&gt; &lt;chr&gt;      &lt;int&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;           
+##  1 &lt;chr ~ http~ 08GQ~ &lt;df[,~ Flee~         86 arti~ spot~ https://open.sp~
+##  2 &lt;chr ~ http~ 3WrF~ &lt;df[,~ The ~         88 arti~ spot~ https://open.sp~
+##  3 &lt;chr ~ http~ 53Xh~ &lt;df[,~ Imag~         89 arti~ spot~ https://open.sp~
+##  4 &lt;chr ~ http~ 1dfe~ &lt;df[,~ Queen         89 arti~ spot~ https://open.sp~
+##  5 &lt;chr ~ http~ 3YQK~ &lt;df[,~ Twen~         85 arti~ spot~ https://open.sp~
+##  6 &lt;chr ~ http~ 77SW~ &lt;df[,~ The ~         84 arti~ spot~ https://open.sp~
+##  7 &lt;chr ~ http~ 04gD~ &lt;df[,~ Maro~         89 arti~ spot~ https://open.sp~
+##  8 &lt;chr ~ http~ 711M~ &lt;df[,~ AC/DC         87 arti~ spot~ https://open.sp~
+##  9 &lt;chr ~ http~ 20JZ~ &lt;df[,~ Pani~         84 arti~ spot~ https://open.sp~
+## 10 &lt;chr ~ http~ 3Pho~ &lt;df[,~ Elto~         85 arti~ spot~ https://open.sp~
+## 11 &lt;chr ~ http~ 7Ln8~ &lt;df[,~ Arct~         86 arti~ spot~ https://open.sp~
+## 12 &lt;chr ~ http~ 3b8Q~ &lt;df[,~ Flor~         81 arti~ spot~ https://open.sp~
+## 13 &lt;chr ~ http~ 0L8E~ &lt;df[,~ Red ~         85 arti~ spot~ https://open.sp~
+## 14 &lt;chr ~ http~ 36QJ~ &lt;df[,~ Led ~         81 arti~ spot~ https://open.sp~
+## 15 &lt;chr ~ http~ 6x2L~ &lt;df[,~ Thom~         80 arti~ spot~ https://open.sp~
+## 16 &lt;chr ~ http~ 4UXq~ &lt;df[,~ Fall~         83 arti~ spot~ https://open.sp~
+## 17 &lt;chr ~ http~ 0k17~ &lt;df[,~ Pink~         83 arti~ spot~ https://open.sp~
+## 18 &lt;chr ~ http~ 6s22~ &lt;df[,~ AJR           78 arti~ spot~ https://open.sp~
+## 19 &lt;chr ~ http~ 2ye2~ &lt;df[,~ Meta~         84 arti~ spot~ https://open.sp~
+## 20 &lt;chr ~ http~ 22bE~ &lt;df[,~ The ~         83 arti~ spot~ https://open.sp~
+## # ... with 3 more variables: followers.href &lt;lgl&gt;, followers.total &lt;int&gt;,
+## #   genre &lt;chr&gt;</code></pre>
+<p>##challenge part 2 - competitor web scraping</p>
+<pre class="r"><code># WEBSCRAPING ----
+
+# 1.0 LIBRARIES ----
+
+library(tidyverse) # Main Package - Loads dplyr, purrr, etc.
+library(rvest)     # HTML Hacking &amp; Web Scraping
+library(xopen)     # Quickly opening URLs
+library(jsonlite)  # converts JSON files to R objects
+library(glue)      # concatenate strings
+library(stringi)   # character string/text processing
+library (dplyr)
+
+url_home = &quot;https://www.rosebikes.de/fahrräder/mtb&quot;
+
+
+html_home         &lt;- read_html(url_home)
+
+type_name &lt;- html_home %&gt;%
+  html_nodes(css = &quot;.catalog-category-bikes__title-text&quot;)%&gt;%
+  html_text()
+               
+type_price &lt;-  html_home %&gt;%
+  html_nodes(css = &quot;.catalog-category-bikes__price-title&quot;)%&gt;%
+  html_text()
+
+name_list&lt;-c()
+
+price_list&lt;-c()
+#type_name_list= str_split(type_name,&quot; &quot;)
+for (i in type_name){
+  
+ elem&lt;-str_extract(i,&quot;.+(?=\\n)&quot;)
+ name_list&lt;-c(name_list,elem)
+
+}
+
+
+for (i in type_price){
+  
+  elem&lt;-str_extract(i,&quot;(?&lt;= ).+(?=\\S)&quot;)
+  price_list&lt;-c(price_list,elem)
+  
+}
+
+#bike_table&lt;- enframe(name =
+
+#df &lt;- ldply (price_list, data.frame)
+
+bike_price_table&lt;-data.frame(name_list,price_list)
+
+bike_price_table</code></pre>
+<pre><code>##           name_list price_list
+## 1    GROUND CONTROL  1.699,00 
+## 2       ROOT MILLER  1.999,00 
+## 3        PIKES PEAK  3.099,00 
+## 4         THE BRUCE       &lt;NA&gt;
+## 5        COUNT SOLO       &lt;NA&gt;
+## 6       PSYCHO PATH  1.849,00 
+## 7       THRILL HILL  2.599,00 
+## 8 THRILL HILL TRAIL  2.899,00 
+## 9         SOUL FIRE  2.149,00 </code></pre>
+<pre class="r"><code>#a&lt;-enframe(c(name=name_list,values=price_list))</code></pre>
 </div>
 
 

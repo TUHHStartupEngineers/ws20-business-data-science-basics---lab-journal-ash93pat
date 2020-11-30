@@ -149,3 +149,93 @@ sales_by_year_state_tbl %>%
   
   
 ```
+
+
+#Data Acquisistion
+
+##challenge part 1 - spotifyr web api
+```{r}
+
+library(spotifyr)
+
+
+library(tidyverse)
+library(knitr)
+
+
+rock_artists<-get_genre_artists(
+  genre = "rock",
+  
+  authorization = get_spotify_access_token()
+)
+rock_artists 
+```
+
+
+##challenge part 2 - competitor web scraping
+```{r}
+
+# WEBSCRAPING ----
+
+# 1.0 LIBRARIES ----
+
+library(tidyverse) # Main Package - Loads dplyr, purrr, etc.
+library(rvest)     # HTML Hacking & Web Scraping
+library(xopen)     # Quickly opening URLs
+library(jsonlite)  # converts JSON files to R objects
+library(glue)      # concatenate strings
+library(stringi)   # character string/text processing
+library (dplyr)
+
+url_home = "https://www.rosebikes.de/fahrräder/mtb"
+
+
+html_home         <- read_html(url_home)
+
+type_name <- html_home %>%
+  html_nodes(css = ".catalog-category-bikes__title-text")%>%
+  html_text()
+               
+type_price <-  html_home %>%
+  html_nodes(css = ".catalog-category-bikes__price-title")%>%
+  html_text()
+
+name_list<-c()
+
+price_list<-c()
+#type_name_list= str_split(type_name," ")
+for (i in type_name){
+  
+ elem<-str_extract(i,".+(?=\\n)")
+ name_list<-c(name_list,elem)
+
+}
+
+
+for (i in type_price){
+  
+  elem<-str_extract(i,"(?<= ).+(?=\\S)")
+  price_list<-c(price_list,elem)
+  
+}
+
+#bike_table<- enframe(name =
+
+#df <- ldply (price_list, data.frame)
+
+bike_price_table<-data.frame(name_list,price_list)
+
+bike_price_table
+#a<-enframe(c(name=name_list,values=price_list))
+```
+
+
+
+
+
+
+
+
+
+
+
