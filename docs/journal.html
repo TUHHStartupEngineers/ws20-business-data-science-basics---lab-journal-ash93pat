@@ -411,9 +411,9 @@ div.tocify {
 
 
 <p><strong>IMPORTANT:</strong> You can delete everything in here and start fresh. You might want to start by not deleting anything above this line until you know what that stuff is doing.</p>
-<p>Last compiled: 2020-11-30</p>
-<div id="intro-to-tidyverse" class="section level1">
-<h1><span class="header-section-number">1</span> Intro To Tidyverse</h1>
+<p>Last compiled: 2020-12-05</p>
+<div id="chapter-2---intro-to-tidyverse" class="section level1">
+<h1><span class="header-section-number">1</span> Chapter 2 - Intro To Tidyverse</h1>
 <p>##challenge part 1</p>
 <pre class="r"><code># SALES ANALYSIS ----
 
@@ -525,13 +525,16 @@ sales_by_year_state_tbl %&gt;%
                                                     decimal.mark = &quot;,&quot;, 
                                                     prefix = &quot;&quot;, 
                                                     suffix = &quot; €&quot;)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
   labs(
     title = &quot;Revenue by year and state&quot;,
     subtitle = &quot;A comparison&quot;,
     fill = &quot;Main category&quot; # Changes the legend name
   )  </code></pre>
 <p><img src="journal_files/figure-html/unnamed-chunk-1-2.png" width="672" /></p>
-<p>#Data Acquisistion</p>
+</div>
+<div id="chapter-3---data-acquisistion" class="section level1">
+<h1><span class="header-section-number">2</span> Chapter 3 - Data Acquisistion</h1>
 <p>##challenge part 1 - spotifyr web api</p>
 <pre class="r"><code>library(spotifyr)
 
@@ -651,6 +654,231 @@ bike_price_table</code></pre>
 ## 8 THRILL HILL TRAIL  2.899,00 
 ## 9         SOUL FIRE  2.149,00 </code></pre>
 <pre class="r"><code>#a&lt;-enframe(c(name=name_list,values=price_list))</code></pre>
+</div>
+<div id="chapter-4--data-wrangling" class="section level1">
+<h1><span class="header-section-number">3</span> Chapter 4- Data Wrangling</h1>
+<pre class="r"><code>library(tidyverse)
+library(vroom)
+
+# Data Table
+library(data.table)
+library(lubridate)
+# Counter
+
+col_types_patent_assignee &lt;- list(
+  patent_id = col_character(),
+  assignee_id = col_character(),
+  location_id=col_character()
+  
+)
+
+
+
+  col_types_assignee &lt;- list(
+    id = col_character(),
+    type = col_character(),
+    name_first= col_character(),
+    name_last= col_character(),
+    organization= col_character()
+  )
+
+assignee_tbl &lt;- vroom(
+  file       = &quot;00_data/patents/assignee.tsv&quot;, 
+  delim      = &quot;\t&quot;, 
+  col_types  = col_types_assignee,
+  na         = c(&quot;&quot;, &quot;NA&quot;, &quot;NULL&quot;)
+)
+
+patent_assignee_tbl &lt;- vroom(
+  file       = &quot;00_data/patents/patent_assignee.tsv&quot;, 
+  delim      = &quot;\t&quot;, 
+  col_types  = col_types_patent_assignee,
+  na         = c(&quot;&quot;, &quot;NA&quot;, &quot;NULL&quot;)
+)
+
+setDT(assignee_tbl)
+setDT(patent_assignee_tbl)
+
+joined_table &lt;-patent_assignee_tbl%&gt;% 
+  left_join(y =assignee_tbl, by =c(&quot;assignee_id&quot;=&quot;id&quot;))
+ques_1&lt;-joined_table[,.N,by=organization][order(-N)][1:10]</code></pre>
+<p><img src="00_data/q1_wrangling.png" /></p>
+<pre class="r"><code>col_types &lt;- list(
+  id = col_character(),
+  
+  
+  date = col_date(&quot;%Y-%m-%d&quot;)
+  
+)
+
+patent_tbl &lt;- vroom(
+  file       = &quot;00_data/patents/patent.tsv&quot;, 
+  delim      = &quot;\t&quot;, 
+  col_types  = col_types,
+  na         = c(&quot;&quot;, &quot;NA&quot;, &quot;NULL&quot;),
+  col_select = c(id,date)
+)
+
+
+setDT(patent_tbl)
+
+q2_table &lt;- joined_table%&gt;% 
+  left_join(y =patent_tbl, by=c(&quot;patent_id&quot;=&quot;id&quot;))
+
+
+q2&lt;-q2_table[lubridate::year(date)==2019,.N,by=organization][order(-N)][1:10]</code></pre>
+<p><img src="00_data/q2_wrangling.png" /></p>
+<pre class="r"><code>col_types_uspc &lt;- list(
+  patent_id = col_character(),
+  
+  
+  mainclass_id = col_character()
+)
+
+
+uspc_tbl &lt;- vroom(
+  file       = &quot;00_data/patents/uspc.tsv&quot;, 
+  delim      = &quot;\t&quot;, 
+  col_types  = col_types_uspc,
+  na         = c(&quot;&quot;, &quot;NA&quot;, &quot;NULL&quot;),
+  col_select = c(patent_id,mainclass_id)
+)
+
+setDT(uspc_tbl)
+
+#&lt;-q2_table[,c(.N,patent_id),by=organization][order(-N)][1:10]
+
+
+q3_table&lt;-  joined_table%&gt;% 
+  left_join(y =uspc_tbl, by=c(&quot;patent_id&quot;=&quot;patent_id&quot;))
+
+#q3&lt;-q3_table[,mainclass_id,by=ques_1$organization]
+main_class_list=c()
+#for (i in ques_1$organization)
+#{
+  q3&lt;-q3_table[organization%in%ques_1$organization,.N,by=mainclass_id][order(-N)]
+  
+  
+#}</code></pre>
+<p><img src="00_data/q3_wrangling.png" /></p>
+</div>
+<div id="chapter-5---visualisation" class="section level1">
+<h1><span class="header-section-number">4</span> chapter 5 - Visualisation</h1>
+<pre class="r"><code>library(tidyverse)
+library(data.table)
+library(lubridate)
+library(ggrepel)
+library(scales)
+covid_data_tbl &lt;- read_csv(&quot;00_data/covid.csv&quot;)
+setDT(covid_data_tbl)
+
+table_selection&lt;- covid_data_tbl[year== 2020 &amp; countriesAndTerritories  %in% c(&quot;Germany&quot; , &quot;France&quot; , &quot;Spain&quot; , &quot;United_Kingdom&quot;,&quot;Italy&quot;,&quot;United_States_of_America&quot;)]
+
+table_selection&lt;- setorderv(table_selection,c(&quot;year&quot;,&quot;month&quot;,&quot;day&quot;))
+
+table_selection&lt;-  table_selection[,cumulative_cases:= cumsum(cases),by=countriesAndTerritories] 
+          
+
+
+
+
+
+ 
+table_selection %&gt;%
+
+ggplot(aes(month, cumulative_cases,fill = countriesAndTerritories,color=countriesAndTerritories)) +
+  
+   
+  geom_smooth(level=0.0001 )+
+  
+  #scale_y_continuous(sec.axis = sec_axis(~ ., breaks = d_ends))+
+  
+  geom_label(data = filter(table_selection,cumulative_cases==last(cumulative_cases)), aes(label =cumulative_cases),color= &#39;black&#39;)+
+#scale_color_manual(values=c(&#39;#999999&#39;,&#39;chartreuse&#39;,&#39;#D69F04&#39;,&#39;#B56F98&#39;,&#39;brown1&#39;,&quot;coral1&quot;))+
+  
+  labs(
+    title = &quot;Covid cumulative figures&quot;,
+    subtitle = &quot;2020&quot;
+    
+   )+
+xlab(&quot;Year 2020&quot;)+
+  ylab(&quot;cumulative cases&quot;)+
+  #scale_x_datetime(date_labels = lubridate::month())
+  
+  scale_x_discrete(limits=month.abb) </code></pre>
+<p><img src="journal_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<pre class="r"><code>library(tidyverse)
+library(data.table)
+library(lubridate)
+library(ggrepel)
+library(scales)
+library(maps)
+covid_data_tbl &lt;- read_csv(&quot;00_data/covid.csv&quot;)
+setDT(covid_data_tbl)
+
+table_selection&lt;- covid_data_tbl[year== 2020 ]
+
+#table_selection&lt;- setorderv(table_selection,c(&quot;year&quot;,&quot;month&quot;,&quot;day&quot;))
+
+#table_selection&lt;-  table_selection[,cumulative_cases:= cumsum(cases),by=countriesAndTerritories] 
+table_selection&lt;- table_selection%&gt;% 
+  mutate(across(countriesAndTerritories, str_replace_all, &quot;_&quot;, &quot; &quot;)) %&gt;%
+  mutate(countriesAndTerritories = case_when(
+    
+    countriesAndTerritories == &quot;United Kingdom&quot; ~ &quot;UK&quot;,
+    countriesAndTerritories == &quot;United States of America&quot; ~ &quot;USA&quot;,
+    countriesAndTerritories == &quot;Czechia&quot; ~ &quot;Czech Republic&quot;,
+    TRUE ~ countriesAndTerritories
+    
+  ))
+
+mort_rate_table&lt;- table_selection[, .(total_cases = sum(cases),  mort_rate=100*sum(deaths)/popData2019[1]),by=countriesAndTerritories]
+
+
+world &lt;- map_data(&quot;world&quot;)
+
+
+  
+
+joined_data=world%&gt;%left_join(mort_rate_table,by=c(&quot;region&quot;=&quot;countriesAndTerritories&quot;))
+  
+
+
+
+ditch_the_axes &lt;- theme(
+  axis.text = element_blank(),
+  axis.line = element_blank(),
+  axis.ticks = element_blank(),
+  panel.border = element_blank(),
+  panel.grid = element_blank(),
+  axis.title = element_blank()
+)
+
+
+
+
+
+ggplot(data = world,mapping = aes(x = long, y = lat, group = group)) +
+  geom_polygon(color = &quot;black&quot;, fill = &quot;gray&quot;)+
+    
+  
+  
+  
+ 
+  geom_polygon(data =joined_data,aes(fill = mort_rate),color = &quot;white&quot;)+
+  
+  geom_polygon(color = &quot;black&quot;, fill = NA) +
+  
+  ditch_the_axes+
+ 
+  scale_fill_gradientn(colours = rev(heat.colors(10)),
+                       breaks = c(0.000,0.03,0.06,0.09,0.12,0.15))+
+  labs(
+    title = &quot;Covid figures relative to size of population&quot;,
+    subtitle = &quot;Millions of cases worldwide&quot;,
+    fill=&quot;Mortalilty rate in percentages&quot;
+  )</code></pre>
+<p><img src="journal_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
 </div>
 
 
