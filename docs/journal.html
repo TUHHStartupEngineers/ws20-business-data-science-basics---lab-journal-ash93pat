@@ -498,7 +498,7 @@ sales_by_year_state_tbl &lt;- challenge_bike_orderlines_wrangled_tbl %&gt;%
   group_by(year, state) %&gt;%
   summarise(sales = sum(total_price)) %&gt;%
   ungroup() %&gt;%
-  
+  #code
   # Format $ Text
   mutate(sales_text = scales::dollar(sales, big.mark = &quot;.&quot;, 
                                      decimal.mark = &quot;,&quot;, 
